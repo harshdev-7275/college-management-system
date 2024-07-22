@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const userController_1 = require("../controllers/userController");
+const router = express_1.default.Router();
+router.get("/get-all-professors", userController_1.getAllProfessors);
+router.get("/get-professor-by-id/:id", userController_1.getProfessorById);
+router.get("/get-all-students", userController_1.getAllStudents);
+router.get("/get-student-by-id/:id", userController_1.getStudentById);
+router.get("/get-all-subjects", userController_1.getAllSubjects);
+router.get("/get-subject-by-id/:id", userController_1.getSubjectById);
+router.get("/get-all-admission-records", userController_1.getAllAdmissionRecords);
+router.get("/get-admission-record-by-id/:id", userController_1.getAdmissionRecordById);
+router.get("/professor/:id/subjects", userController_1.getSubjectsByProfessorId);
+router.get("/professor/:id/students", userController_1.getStudentsByProfessorId);
+router.get("/students/:id/professors", userController_1.getProfessorByStudentId);
+router.get("/students/:id/subjects", userController_1.getSubjectsByStudentId);
+exports.default = router;

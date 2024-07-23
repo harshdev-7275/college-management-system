@@ -2,14 +2,17 @@ import { Request, Response } from "express";
 import { prisma } from "../configs/prisma";
 const addProfessor = async (req: Request, res: Response) => {
   try {
-    const { title } = req.body;
+    const { name } = req.body;
     const newProfessor = await prisma.professor.create({
-      data: { title },
+      data:{
+        name
+      }
     });
     res.status(201).json({
       success: true,
+      message: "Professor added successfully",
       data: {
-        message: "Professor added successfully",
+        professor: newProfessor,
       },
     });
   } catch (error) {

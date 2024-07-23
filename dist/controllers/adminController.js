@@ -13,14 +13,17 @@ exports.deleteAllData = exports.assignStudentsToProfessor = exports.assignSubjec
 const prisma_1 = require("../configs/prisma");
 const addProfessor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { title } = req.body;
+        const { name } = req.body;
         const newProfessor = yield prisma_1.prisma.professor.create({
-            data: { title },
+            data: {
+                name
+            }
         });
         res.status(201).json({
             success: true,
+            message: "Professor added successfully",
             data: {
-                message: "Professor added successfully",
+                professor: newProfessor,
             },
         });
     }

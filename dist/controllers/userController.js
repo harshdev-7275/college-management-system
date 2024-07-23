@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSubjectsByStudentId = exports.getProfessorByStudentId = exports.getStudentsByProfessorId = exports.getSubjectsByProfessorId = exports.getAdmissionRecordById = exports.getAllAdmissionRecords = exports.getSubjectById = exports.getAllSubjects = exports.getStudentById = exports.getAllStudents = exports.getProfessorById = exports.getAllProfessors = void 0;
+exports.getStudentsWithProfessorsAndSubjectsSortByName = exports.getSubjectsWithFilteredStudents = exports.getAllProfessorsWithSubjectsAndStudentsCount = exports.getAllSubjectsWithProfessorsAndEnrolledStudents = exports.getAllStudentsWithProfessorsAndAdmissionRecord = exports.getAllProfessorsWithSubjectsAndStudents = exports.getSubjectsByStudentId = exports.getProfessorByStudentId = exports.getStudentsByProfessorId = exports.getSubjectsByProfessorId = exports.getAdmissionRecordById = exports.getAllAdmissionRecords = exports.getSubjectById = exports.getAllSubjects = exports.getStudentById = exports.getAllStudents = exports.getProfessorById = exports.getAllProfessors = void 0;
 const prisma_1 = require("../configs/prisma");
 const getAllProfessors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -34,7 +34,7 @@ exports.getAllProfessors = getAllProfessors;
 const getProfessorById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        if (!id) {
+        if (!id || isNaN(Number(id))) {
             return res.status(400).json({
                 success: false,
                 error: "Please provide valid id",
@@ -45,7 +45,15 @@ const getProfessorById = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 id: Number(id),
             },
         });
-        res.status(200).json({
+        if (!professor) {
+            return res.status(404).json({
+                success: true,
+                data: {
+                    professor: professor,
+                },
+            });
+        }
+        return res.status(200).json({
             success: true,
             data: {
                 professor: professor,
@@ -83,7 +91,7 @@ exports.getAllStudents = getAllStudents;
 const getStudentById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        if (!id) {
+        if (!id || isNaN(Number(id))) {
             return res.status(400).json({
                 success: false,
                 message: "Please provide valid id",
@@ -132,7 +140,7 @@ exports.getAllSubjects = getAllSubjects;
 const getSubjectById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        if (!id) {
+        if (!id || isNaN(Number(id))) {
             return res.status(400).json({
                 success: false,
                 error: "Please provide valid id",
@@ -185,7 +193,7 @@ exports.getAllAdmissionRecords = getAllAdmissionRecords;
 const getAdmissionRecordById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        if (!id) {
+        if (!id || isNaN(Number(id))) {
             return res.status(400).json({
                 success: false,
                 error: "Please provide valid id",
@@ -403,3 +411,205 @@ const getSubjectsByStudentId = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.getSubjectsByStudentId = getSubjectsByStudentId;
+const getAllProfessorsWithSubjectsAndStudents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 3;
+        const professors = yield prisma_1.prisma.professor.findMany({
+            skip: (page - 1) * limit,
+            take: limit,
+            include: {
+                subjects: true,
+                students: true
+            }
+        });
+        res.status(200).json({
+            success: true,
+            data: {
+                professors: professors
+            }
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
+    }
+});
+exports.getAllProfessorsWithSubjectsAndStudents = getAllProfessorsWithSubjectsAndStudents;
+const getAllStudentsWithProfessorsAndAdmissionRecord = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 3;
+        const students = yield prisma_1.prisma.student.findMany({
+            skip: (page - 1) * limit,
+            take: limit,
+            include: {
+                professors: true,
+                admissionRecord: true
+            }
+        });
+        res.status(200).json({
+            success: true,
+            data: {
+                students: students
+            }
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
+    }
+});
+exports.getAllStudentsWithProfessorsAndAdmissionRecord = getAllStudentsWithProfessorsAndAdmissionRecord;
+const getAllSubjectsWithProfessorsAndEnrolledStudents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 3;
+        const subjects = yield prisma_1.prisma.subject.findMany({
+            skip: (page - 1) * limit,
+            take: limit,
+            include: {
+                professor: true,
+                students: true
+            }
+        });
+        res.status(200).json({
+            success: true,
+            data: {
+                subjects: subjects
+            }
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
+    }
+});
+exports.getAllSubjectsWithProfessorsAndEnrolledStudents = getAllSubjectsWithProfessorsAndEnrolledStudents;
+const getAllProfessorsWithSubjectsAndStudentsCount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 3;
+        const professors = yield prisma_1.prisma.professor.findMany({
+            skip: (page - 1) * limit,
+            take: limit,
+            select: {
+                id: true,
+                name: true,
+                subjects: {
+                    select: {
+                        id: true,
+                        title: true,
+                        _count: {
+                            select: { students: true }
+                        }
+                    }
+                }
+            }
+        });
+        res.status(200).json({
+            success: true,
+            data: {
+                professors: professors
+            }
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+});
+exports.getAllProfessorsWithSubjectsAndStudentsCount = getAllProfessorsWithSubjectsAndStudentsCount;
+const getSubjectsWithFilteredStudents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const subjectId = Number(req.params.id);
+        const { name, professorId } = req.query;
+        const students = yield prisma_1.prisma.student.findMany({
+            where: {
+                subjects: {
+                    some: {
+                        id: subjectId
+                    }
+                },
+                AND: [
+                    name ? { name: { contains: String(name), mode: 'insensitive' } } : {},
+                    professorId ? { professors: { some: { id: Number(professorId) } } } : {}
+                ]
+            },
+            select: {
+                id: true,
+                name: true,
+                admissionRecord: {
+                    select: {
+                        fees: true
+                    }
+                },
+                professors: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+        res.status(200).json({
+            success: true,
+            data: {
+                students: students
+            }
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+});
+exports.getSubjectsWithFilteredStudents = getSubjectsWithFilteredStudents;
+const getStudentsWithProfessorsAndSubjectsSortByName = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const students = yield prisma_1.prisma.student.findMany({
+            orderBy: {
+                name: "asc"
+            },
+            select: {
+                id: true,
+                name: true,
+                subjects: {
+                    select: {
+                        id: true,
+                        title: true,
+                    }
+                },
+                professors: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                },
+            },
+        });
+        res.status(200).json({
+            success: true,
+            data: {
+                students: students
+            }
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        });
+    }
+});
+exports.getStudentsWithProfessorsAndSubjectsSortByName = getStudentsWithProfessorsAndSubjectsSortByName;
